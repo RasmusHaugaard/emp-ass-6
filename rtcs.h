@@ -24,8 +24,6 @@ typedef unsigned char SEM;
 
 #define WAIT_FOREVER 0
 
-#define SYS_TASK 0
-
 #define ERROR_TASK 0xFF // Task error
 
 extern void set_state(INT8U);
