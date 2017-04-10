@@ -38,7 +38,7 @@ void rtc_task(INT8U my_id, INT8U my_state, INT8U event, INT8U data){
       set_state(1);
       break;
     case 1:
-      if (now_millis() - last_millis >= 1000){
+      if ((INT16U)(now_millis() - last_millis) >= 1000){
           last_millis = now_millis();
           if(++sec >= 60){
             if(++min >= 60){
