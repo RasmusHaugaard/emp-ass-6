@@ -4,14 +4,12 @@
 #include "gpio.h"
 
 void init_gpio(void){
-  int dummy;
-
   // Enable the GPIO port that is used for the on-board LED.
   SYSCTL_RCGC2_R  =  SYSCTL_RCGC2_GPIOA | SYSCTL_RCGC2_GPIOC | SYSCTL_RCGC2_GPIOD | SYSCTL_RCGC2_GPIOE | SYSCTL_RCGC2_GPIOF;
   SYSCTL_RCGC1_R |= SYSCTL_RCGC1_UART0;
 
-  // Do a dummy read to insert a few cycles after enabling the peripheral.
-  dummy = SYSCTL_RCGC2_R;
+  __asm__("nop");
+  __asm__("nop");
 
   // Set the direction .
   GPIO_PORTA_DIR_R = 0x1C;
