@@ -1,4 +1,4 @@
-# emp-ass-6
+# rtcs
 
 Run to complete scheduler with lcd, keyboard and uart driver.
 
