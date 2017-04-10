@@ -5,7 +5,6 @@
 
 extern QUEUE Q_KEY;
 
-//states
 #define INIT 0
 #define SEARCH 1
 #define RELEASE 2
@@ -54,16 +53,15 @@ extern void key_task(INT8U my_id, INT8U my_state, INT8U event, INT8U data){
         x++;
         if(x > 3)
           x = 1;
-        GPIO_PORTA_DATA_R &= 0xE3;
-        GPIO_PORTA_DATA_R |= 0x01 << (x+1);
+        INT32U temp = GPIO_PORTA_DATA_R & 0xE3;
+        GPIO_PORTA_DATA_R = temp | (0x01 << (x+1));
       }
+      wait(millis(2));
       break;
     case RELEASE:
-      if(!(GPIO_PORTE_DATA_R & 0x0F)){
-        x = 1;
-        GPIO_PORTA_DATA_R |= 0x04;
+      if(!(GPIO_PORTE_DATA_R & 0x0F))
         set_state(SEARCH);
-      }
+      wait(millis(2));
       break;
   }
 }

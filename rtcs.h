@@ -24,6 +24,12 @@ typedef unsigned char QUEUE;
 
 #define ERROR_TASK 0xFF // Task error
 
+INT16U now_micros();
+INT16U now_millis();
+
+INT16U millis(INT16U);
+INT16U micros(INT16U);
+
 void set_state(INT8U);
 void wait(INT16U);
 BOOLEAN wait_sem(INT8U, INT16U);

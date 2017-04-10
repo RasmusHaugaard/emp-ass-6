@@ -31,25 +31,25 @@ void set_sec(INT8U new_sec){
 }
 
 void rtc_task(INT8U my_id, INT8U my_state, INT8U event, INT8U data){
+  static INT16U last_millis;
   switch(my_state){
     case 0:
+      last_millis = now_millis();
       set_state(1);
-      wait(100);
       break;
     case 1:
-      sec++;
-      if(sec >= 60){
-        min++;
-        if(min >= 60){
-       	  hour++;
-          if(hour >= 24)
-            hour = 0;
-          min = 0;
-        }
-        sec = 0;
+      if (now_millis() - last_millis >= 1000){
+          last_millis = now_millis();
+          if(++sec >= 60){
+            if(++min >= 60){
+              if(++hour >= 24)
+                hour = 0;
+              min = 0;
+            }
+            sec = 0;
+          }
+          signal(SEM_RTC_UPDATED);
       }
-      wait(200); //TODO: make from interval or global timer
-      signal(SEM_RTC_UPDATED);
       break;
   }
 }
