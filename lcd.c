@@ -124,8 +124,7 @@ void out_LCD(INT8U Ch){
   out_LCD_low( Ch );
 }
 
-
-
+//TODO: continuously update LCD from an image buffer
 void lcd_task(INT8U my_id, INT8U my_state, INT8U event, INT8U data){
   INT8U ch;
   switch(my_state){
