@@ -30,7 +30,7 @@ void ui_key_task(INT8U my_id, INT8U my_state, INT8U event, INT8U data){
 
 int main(void){
   init_gpio();
-  uart0_init( 9600, 8, 1, 'n' );
+  uart0_init(115200, 8, 1, 'n');
   init_files();
 
   UART = create_file(uart_get_q, uart_put_q);
