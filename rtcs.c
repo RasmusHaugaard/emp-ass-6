@@ -61,16 +61,16 @@ void i_am_alive(INT8U my_id, INT8U my_state, INT8U event, INT8U data){
   wait(200);
 }
 
-extern void set_state(INT8U new_state){
+void set_state(INT8U new_state){
   pot[current_task].state = new_state;
 }
 
-extern void wait(INT16U timeout){
+void wait(INT16U timeout){
   pot[current_task].timer = timeout;
   pot[current_task].condition = TASK_WAIT_FOR_TIMEOUT;
 }
 
-extern BOOLEAN wait_sem(INT8U sem, INT16U timeout){
+BOOLEAN wait_sem(INT8U sem, INT16U timeout){
   BOOLEAN result = TRUE;
   if(pos[sem].count){
 	pos[sem].count--;
@@ -88,12 +88,12 @@ extern BOOLEAN wait_sem(INT8U sem, INT16U timeout){
   return result;
 }
 
-extern void signal(INT8U sem){
+void signal(INT8U sem){
   if(sem < MAX_SEMAPHORES)
 	pos[sem].count++;
 }
 
-extern void preset_sem(INT8U sem, INT8U signals){
+void preset_sem(INT8U sem, INT8U signals){
   if(sem < MAX_SEMAPHORES)
     pos[sem].count = signals;
 }
@@ -139,7 +139,7 @@ BOOLEAN get_queue(INT8U id, INT8U* pch, INT16U timeout){
   return result;
 }
 
-extern HANDLE create_task(void (*tf)(INT8U, INT8U, INT8U, INT8U), char* name){
+HANDLE create_task(void (*tf)(INT8U, INT8U, INT8U, INT8U), char* name){
   HANDLE id = retrieve_id();
   if(id != ERROR_TASK){
 	pot[id].condition = TASK_READY;
@@ -151,12 +151,12 @@ extern HANDLE create_task(void (*tf)(INT8U, INT8U, INT8U, INT8U), char* name){
   return id;
 }
 
-extern void init_rtcs(){
+void init_rtcs(){
   init_systick();
   for(INT8U i = 0; i < MAX_TASKS; i++){
 	pot[i].condition = NO_TASK;
   }
-  TASK_IM_ALIVE = create_task(i_am_alive, "IM ALIVE");
+  create_task(i_am_alive, "IM ALIVE");
 }
 
 void schedule(){

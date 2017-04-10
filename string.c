@@ -23,12 +23,12 @@ char* strncpy(char* dest, const char *src, INT8U len){
 
 void putStr(FILE fp, const char* str){
   while(*str)
-    put_file(fp, *str++);
+    file_write(fp, *str++);
 }
 
 void putChars(FILE fp, const char* str, int len){
   while(len--)
-    put_file(fp, *str++);
+    file_write(fp, *str++);
 }
 
 void putDec(FILE fp, long val, int sign, int size, char filler){
@@ -39,7 +39,7 @@ void putDec(FILE fp, long val, int sign, int size, char filler){
   if(sign == NEGATIVE){
     size--;
     if(filler == '0'){
-      put_file( fp, '-' );
+      file_write( fp, '-' );
       sign = POSITIVE;
     }
   }
@@ -61,13 +61,13 @@ void putDec(FILE fp, long val, int sign, int size, char filler){
   while(size > 0){
     digit = val / weight;
     if(digit == 0)
-      put_file(fp, filler);
+      file_write(fp, filler);
     else{
       if(sign == NEGATIVE){
-        put_file(fp, '-');
+        file_write(fp, '-');
         sign = POSITIVE;
       }
-      put_file(fp, digit + '0');
+      file_write(fp, digit + '0');
       filler = '0';
     }
     val %= weight;
@@ -91,9 +91,9 @@ void putHex(FILE fp, long val, int size){
   while(size > 0){
     digit = val / weight;
     if(digit < 10)
-      put_file(fp, digit + '0');
+      file_write(fp, digit + '0');
     else
-      put_file(fp, digit + '7');
+      file_write(fp, digit + '7');
     val %= weight;
     weight /= 16;
     size--;
@@ -130,7 +130,7 @@ void gfprintf(FILE fp, const char* str, ...){
         str++;
         switch(*str){
           case '%':
-            put_file(fp, '%');
+            file_write(fp, '%');
             done = TRUE;
             break;
           case '0': case '1': case '2': case '3': case '4':
@@ -148,7 +148,7 @@ void gfprintf(FILE fp, const char* str, ...){
             break;
           case 'c':
             val = va_arg(vaArgP, unsigned long);
-            put_file(fp, (char)val);
+            file_write(fp, (char)val);
             done = TRUE;
             break;
           case 'd':
@@ -181,11 +181,11 @@ void gfprintf(FILE fp, const char* str, ...){
               len++;
             if(adjust == RIGHT)
               while(size-- > len)
-                put_file(fp, ' ');
+                file_write(fp, ' ');
             putStr(fp, subStr);
             if(adjust == RIGHT)
               while(size-- > len)
-                put_file( fp, ' ' );
+                file_write( fp, ' ' );
             done = TRUE;
             break;
           default:
@@ -197,13 +197,5 @@ void gfprintf(FILE fp, const char* str, ...){
     }
   }
   // End the varargs processing.
-  va_end(vaArgP);
-}
-
-void gprintf(const char *str, ...)
-{
-  va_list vaArgP;
-  va_start(vaArgP, str);
-  gfprintf(COM1, str, vaArgP );
   va_end(vaArgP);
 }

@@ -26,16 +26,16 @@ typedef unsigned char SEM;
 
 #define ERROR_TASK 0xFF // Task error
 
-extern void set_state(INT8U);
-extern void wait(INT16U);
-extern BOOLEAN wait_sem(INT8U, INT16U);
-extern void signal(INT8U);
+void set_state(INT8U);
+void wait(INT16U);
+BOOLEAN wait_sem(INT8U, INT16U);
+void signal(INT8U);
 INT8S open_queue(INT8U);
 BOOLEAN put_queue(INT8U, INT8U, INT16U);
 BOOLEAN get_queue(INT8U, INT8U*, INT16U);
 
-extern HANDLE create_task(void (*tf)(INT8U, INT8U, INT8U, INT8U), char* name);
-extern void init_rtcs();
+HANDLE create_task(void (*tf)(INT8U, INT8U, INT8U, INT8U), char* name);
+void init_rtcs();
 void schedule();
 
 #endif

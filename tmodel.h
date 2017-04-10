@@ -3,16 +3,6 @@
 
 #include "rtcs.h"
 
-INT8U TASK_IM_ALIVE,
-      TASK_UART_RX,
-      TASK_KEY,
-      TASK_UI,
-      TASK_UI_KEY,
-      TASK_UART_TX,
-      TASK_RTC,
-      TASK_DISPLAY_RTC,
-      TASK_LCD;
-
 #define ISR_TIMER 21
 
 #define SEM_LCD USER_SEM

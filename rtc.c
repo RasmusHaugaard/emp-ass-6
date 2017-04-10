@@ -46,12 +46,12 @@ void rtc_task(INT8U my_id, INT8U my_state, INT8U event, INT8U data){
         }
         sec = 0;
       }
-      wait(200); //todo: how does this work correctly?
+      wait(200); //TODO: make from interval or global timer
       signal(SEM_RTC_UPDATED);
       break;
   }
 }
-//TODO: detach the visual representation from the rtc
+
 void display_rtc_task(INT8U my_id, INT8U my_state, INT8U event, INT8U data){
   move_LCD(4, 0);
 
