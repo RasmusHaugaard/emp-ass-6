@@ -35,14 +35,14 @@ int main(void){
   open_queue(Q_LCD);
   open_queue(Q_KEY);
 
-  start_task(TASK_RTC, rtc_task);
-  start_task(TASK_DISPLAY_RTC, display_rtc_task);
-  start_task(TASK_LCD, lcd_task);
-  start_task(TASK_UART_TX, uart_tx_task);
-  start_task(TASK_UART_RX, uart_rx_task);
-  start_task(TASK_UI, ui_task);
-  start_task(TASK_KEY, key_task);
-  start_task(TASK_UI_KEY, ui_key_task);
+  TASK_RTC = create_task(rtc_task, "RTC");
+  TASK_DISPLAY_RTC = create_task(display_rtc_task, "RTC DISP");
+  TASK_LCD = create_task(lcd_task, "LCD");
+  TASK_UART_TX = create_task(uart_tx_task, "UART TX");
+  TASK_UART_RX = create_task(uart_rx_task, "UART RX");
+  TASK_UI = create_task(ui_task, "UI");
+  TASK_KEY = create_task(key_task, "KEY");
+  TASK_UI_KEY = create_task(ui_key_task, "KEY UI");
 
   schedule();
 }

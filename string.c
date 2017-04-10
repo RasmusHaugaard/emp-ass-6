@@ -9,6 +9,18 @@
 #define LEFT    0
 #define RIGHT   1
 
+char* strcpy(char* dest, const char *src){
+    while (*src != 0)
+        *dest++ = *src++;
+    return dest;
+}
+
+char* strncpy(char* dest, const char *src, INT8U len){
+    while (--len > 0)
+        *dest++ = *src++;
+    return dest;
+}
+
 void putStr(FILE fp, const char* str){
   while(*str)
     put_file(fp, *str++);

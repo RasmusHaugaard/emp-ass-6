@@ -8,9 +8,8 @@ typedef unsigned char SEM;
 #define MAX_QUEUES 16
 #define MAX_SEMAPHORES 64 // The first 2xMAX_QUEUES are reserved for the queues.
 
-#define USER_TASK      1
-#define USER_QUEUE     0
-#define USER_SEM       2 * MAX_QUEUES
+#define USER_QUEUE 0
+#define USER_SEM 2 * MAX_QUEUES
 
 #define NO_TASK 0
 #define TASK_READY 1
@@ -37,7 +36,7 @@ INT8S open_queue(INT8U);
 BOOLEAN put_queue(INT8U, INT8U, INT16U);
 BOOLEAN get_queue(INT8U, INT8U*, INT16U);
 
-extern HANDLE start_task( INT8U, void (*tf)(INT8U, INT8U, INT8U, INT8U) );
+extern HANDLE create_task(void (*tf)(INT8U, INT8U, INT8U, INT8U), char* name);
 extern void init_rtcs();
 void schedule();
 

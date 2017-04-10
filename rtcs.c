@@ -5,10 +5,13 @@
 #include "rtcs.h"
 #include "systick.h"
 #include "tmodel.h"
+#include "string.h"
+
+#define TASK_NAME_LENGTH 10
 
 typedef struct {
   INT8U  condition;
-  INT8U  name;
+  char  name[TASK_NAME_LENGTH];
   INT8U  state;
   INT8U  event;
   INT8U  sem;
@@ -21,7 +24,7 @@ typedef struct
   INT8U  condition;
   INT8U  type;
   INT8U  count;
-}scb; //semaphore control block
+} scb; //semaphore control block
 
 typedef struct
 {
@@ -30,7 +33,7 @@ typedef struct
 	SEM     q_not_full;
 	SEM     q_not_empty;
 	INT8U buf[QUEUE_SIZE];
-}qcb; //queue control block
+} qcb; //queue control block
 
 extern volatile INT16S ticks;
 
@@ -63,7 +66,7 @@ extern void set_state(INT8U new_state){
 }
 
 extern void wait(INT16U timeout){
-  pot[current_task].timer     = timeout;
+  pot[current_task].timer = timeout;
   pot[current_task].condition = TASK_WAIT_FOR_TIMEOUT;
 }
 
@@ -136,16 +139,16 @@ BOOLEAN get_queue(INT8U id, INT8U* pch, INT16U timeout){
   return result;
 }
 
-extern HANDLE start_task(INT8U name, void (*tf)(INT8U, INT8U, INT8U, INT8U)){
-  HANDLE this_id = retrieve_id();
-  if(this_id != ERROR_TASK){
-	pot[this_id].condition = TASK_READY;
-	pot[this_id].name = name;
-	pot[this_id].state = 0;
-	pot[this_id].timer = 0;
-	pot[this_id].tf = tf;
+extern HANDLE create_task(void (*tf)(INT8U, INT8U, INT8U, INT8U), char* name){
+  HANDLE id = retrieve_id();
+  if(id != ERROR_TASK){
+	pot[id].condition = TASK_READY;
+	strncpy(pot[id].name, name, TASK_NAME_LENGTH);
+	pot[id].state = 0;
+	pot[id].timer = 0;
+	pot[id].tf = tf;
   }
-  return 0;
+  return id;
 }
 
 extern void init_rtcs(){
@@ -153,7 +156,7 @@ extern void init_rtcs(){
   for(INT8U i = 0; i < MAX_TASKS; i++){
 	pot[i].condition = NO_TASK;
   }
-  start_task(SYS_TASK, i_am_alive);
+  TASK_IM_ALIVE = create_task(i_am_alive, "IM ALIVE");
 }
 
 void schedule(){
