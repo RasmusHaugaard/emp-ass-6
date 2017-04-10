@@ -1,10 +1,3 @@
-/*
- * string.c
- *
- *  Created on: 26/12/2011
- *      Author: Morten
- */
-
 #include <stdarg.h>
 #include "emp_type.h"
 #include "glob_def.h"
@@ -16,255 +9,189 @@
 #define LEFT    0
 #define RIGHT   1
 
-
-
-void putc1( file, ch )
-int file;
-unsigned char ch;
-{
-  put_file( file, ch );
-  //put_queue( file, ch, WAIT_FOREVER );
+void putStr(FILE fp, const char* str){
+  while(*str)
+    put_file(fp, *str++);
 }
 
-
-void putStr( fp, str )
-FILE fp;
-char *str;
-{
-  while( *str )
-  {
-        putc1( fp, *str++ );
-  }
+void putChars(FILE fp, const char* str, int len){
+  while(len--)
+    put_file(fp, *str++);
 }
 
-void putChars( fp, Str, Len )
-FILE fp;
-char *Str;
-int Len;
-{
-  while( Len-- )
-    putc1( fp, *Str++ );
-}
-
-void putDec( fp, Val, Sign, Size, Filler )
-FILE fp;
-long Val;
-int  Sign;
-int  Size;
-char Filler;
-{
-  long Weight = 1;
-  long Digit;
+void putDec(FILE fp, long val, int sign, int size, char filler){
+  long weight = 1;
+  long digit;
   int  i;
 
-  if( Sign == NEGATIVE )
-  {
-    Size--;
-    if( Filler == '0' )
-    {
-      putc1( fp, '-' );
-      Sign = POSITIVE;
+  if(sign == NEGATIVE){
+    size--;
+    if(filler == '0'){
+      put_file( fp, '-' );
+      sign = POSITIVE;
     }
   }
-
-  // Weight = 10**(Size-1)
-  if( Size == 0 )
-  {
-    while( Weight < Val )
-    {
-      Weight *= 10;
-      Size++;
+  if(size == 0){
+    while( weight < val ){
+      weight *= 10;
+      size++;
     }
-    if( Size == 0)
-      Size = 1;
+    if(size == 0)
+      size = 1;
     else
-      Weight /= 10;
-  }
-  else
-  {
-    i = Size - 1;
-    while( i-- > 0 )
-      Weight *= 10;
+      weight /= 10;
+  }else{
+    i = size - 1;
+    while(i-- > 0)
+      weight *= 10;
   }
 
-  while( Size > 0 )
-  {
-    Digit = Val / Weight;
-    if( Digit == 0 )
-      putc1( fp, Filler );
-    else
-    {
-      if( Sign == NEGATIVE )
-      {
-        putc1( fp, '-' );
-        Sign = POSITIVE;
+  while(size > 0){
+    digit = val / weight;
+    if(digit == 0)
+      put_file(fp, filler);
+    else{
+      if(sign == NEGATIVE){
+        put_file(fp, '-');
+        sign = POSITIVE;
       }
-      putc1( fp, Digit + '0' );
-      Filler = '0';
+      put_file(fp, digit + '0');
+      filler = '0';
     }
-    Val %= Weight;
-    Weight /= 10;
-    Size--;
+    val %= weight;
+    weight /= 10;
+    size--;
   }
 }
 
-void putHex( fp, Val, Size )
-FILE fp;
-long Val;
-int  Size;
-{
-  unsigned long Weight = 1;
-  long Digit;
+void putHex(FILE fp, long val, int size){
+  unsigned long weight = 1;
+  long digit;
   int  i;
 
-  if( Size == 0 )
-    Size = sizeof( long ) * 2;
+  if(size == 0)
+    size = sizeof(long) * 2;
 
-  i = Size - 1;
-  while( i-- > 0 )
-    Weight *= 16;
+  i = size - 1;
+  while(i-- > 0)
+    weight *= 16;
 
-  //putStr( fp, "0x");
-  while( Size > 0 )
-  {
-    Digit = Val / Weight;
-    if( Digit < 10 )
-      putc1( fp, Digit + '0' );
+  while(size > 0){
+    digit = val / weight;
+    if(digit < 10)
+      put_file(fp, digit + '0');
     else
-      putc1( fp, Digit + '7' );
-    Val %= Weight;
-    Weight /= 16;
-    Size--;
+      put_file(fp, digit + '7');
+    val %= weight;
+    weight /= 16;
+    size--;
   }
 }
 
-const void gfprintf( FILE fp, const char *Str, ...)
-{
-  unsigned long Val;
-  int i, Done, Size, Len, Sign, Adjust;
+void gfprintf(FILE fp, const char* str, ...){
+  unsigned long val;
+  int i, done, size, len, sign, adjust;
   char *subStr, preChar;
   va_list vaArgP;
 
-  va_start(vaArgP, Str);
+  va_start(vaArgP, str);
 
-  while( *Str )
-  {
+  while(*str){
     // Find the first non-% character, or the end of the string.
     i = 0;
-    while(( Str[i] != '%' ) && ( Str[i] != '\0'))
+    while(str[i] != '%' && str[i] != '\0')
       i++;
 
-    putChars( fp, Str, i );
+    putChars(fp, str, i);
 
     // Skip the portion of the string that was written.
-    Str += i;
+    str += i;
 
     // See if the next character is a %.
-    if( *Str == '%')
-    {
-      Size   = 0;
-      Done   = FALSE;
+    if(*str == '%'){
+      size = 0;
+      done = FALSE;
       preChar = ' ';
       i = 0;
 
-      while( !Done )
-      {
-        Str++;
-        switch( *Str )
-        {
+      while(!done){
+        str++;
+        switch(*str){
           case '%':
-            putc1( fp, '%' );
-            Done = TRUE;
+            put_file(fp, '%');
+            done = TRUE;
             break;
-
-          case '0':
-          case '1':
-          case '2':
-          case '3':
-          case '4':
-          case '5':
-          case '6':
-          case '7':
-          case '8':
-          case '9':
-            if(( *Str == '0' ) && ( i == 0 ))
+          case '0': case '1': case '2': case '3': case '4':
+          case '5': case '6': case '7': case '8': case '9':
+            if(*str == '0' && i == 0)
               preChar = '0';
-
-            Size *= 10;
-            Size += *Str - '0';
+            size *= 10;
+            size += *str - '0';
             i++;
             break;
-
           case '-':
-            if( i == 0 )
-              Adjust = LEFT;
+            if(i == 0)
+              adjust = LEFT;
             i++;
             break;
-
           case 'c':
-            Val = va_arg(vaArgP, unsigned long);
-            putc1( fp, (char)Val );
-            Done = TRUE;
+            val = va_arg(vaArgP, unsigned long);
+            put_file(fp, (char)val);
+            done = TRUE;
             break;
-
           case 'd':
-            Val  = va_arg(vaArgP, unsigned long);
-            if( (long)Val < 0 )
-            {
-              Val = -(long)Val;
-              Sign = NEGATIVE;
+            val  = va_arg(vaArgP, unsigned long);
+            if((long)val < 0){
+              val = -(long)val;
+              sign = NEGATIVE;
+            }else{
+              sign = POSITIVE;
             }
-            else
-              Sign = POSITIVE;
-            putDec( fp, (long)Val, Sign, Size, preChar );
-            Done = TRUE;
+            putDec(fp, (long)val, sign, size, preChar);
+            done = TRUE;
             break;
-
           case 'u':
-            Val  = va_arg(vaArgP, unsigned long);
-            putDec( fp, Val, POSITIVE, Size, preChar );
-            Done = TRUE;
+            val = va_arg(vaArgP, unsigned long);
+            putDec(fp, val, POSITIVE, size, preChar);
+            done = TRUE;
             break;
-
           case 'x':
           case 'X':
           case 'p':
-            Val = va_arg(vaArgP, unsigned long);
-            putHex( fp, Val, Size );
-            Done = TRUE;
+            val = va_arg(vaArgP, unsigned long);
+            putHex( fp, val, size );
+            done = TRUE;
             break;
-
           case 's':
             subStr = va_arg(vaArgP, char *);
-            Len = 0;
-            while( subStr[Len] )
-              Len++;
-            if( Adjust == RIGHT )
-              while( Size-- > Len )
-                putc1( fp, ' ' );
-            putStr( fp, subStr );
-            if( Adjust == RIGHT )
-              while( Size-- > Len )
-                putc1( fp, ' ' );
-            Done = TRUE;
+            len = 0;
+            while(subStr[len])
+              len++;
+            if(adjust == RIGHT)
+              while(size-- > len)
+                put_file(fp, ' ');
+            putStr(fp, subStr);
+            if(adjust == RIGHT)
+              while(size-- > len)
+                put_file( fp, ' ' );
+            done = TRUE;
             break;
           default:
-            putStr( fp, "???" );
-            Done = TRUE;
+            putStr(fp, "???");
+            done = TRUE;
         }
       }
-      Str++;
+      str++;
     }
   }
   // End the varargs processing.
   va_end(vaArgP);
 }
 
-const void gprintf( const char *Str, ...)
+void gprintf(const char *str, ...)
 {
   va_list vaArgP;
-
-  va_start(vaArgP, Str);
-  gfprintf( COM1, Str, vaArgP );     // stdout = COM1
+  va_start(vaArgP, str);
+  gfprintf(COM1, str, vaArgP );
   va_end(vaArgP);
 }

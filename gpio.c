@@ -1,42 +1,9 @@
-/*****************************************************************************
-* University of Southern Denmark
-* Embedded Programming (EMP)
-*
-* MODULENAME.: gpio.c
-*
-* PROJECT....: EMP
-*
-* DESCRIPTION: See module specification file (.h-file).
-*
-* Change Log:
-*****************************************************************************
-* Date    Id    Change
-* YYMMDD
-* --------------------
-* 150215  MoH   Module created.
-*
-*****************************************************************************/
-
-/***************************** Include files *******************************/
 #include <stdint.h>
 #include "tm4c123gh6pm.h"
 #include "emp_type.h"
 #include "gpio.h"
-/*****************************    Defines    *******************************/
 
-/*****************************   Constants   *******************************/
-
-/*****************************   Variables   *******************************/
-
-/*****************************   Functions   *******************************/
-
-void init_gpio(void)
-/*****************************************************************************
-*   Input    :
-*   Output   :
-*   Function : The super loop.
-******************************************************************************/
-{
+void init_gpio(void){
   int dummy;
 
   // Enable the GPIO port that is used for the on-board LED.
@@ -53,7 +20,6 @@ void init_gpio(void)
   GPIO_PORTE_DIR_R = 0x00;
   GPIO_PORTF_DIR_R = 0x0E;
 
-
   // Enable the GPIO pins for digital function.
   GPIO_PORTA_DEN_R = 0x1C;
   GPIO_PORTC_DEN_R = 0xF0;
@@ -64,5 +30,3 @@ void init_gpio(void)
   // Enable internal pull-up (PF0 and PF4).
   GPIO_PORTF_PUR_R = 0x11;
 }
-
-/****************************** End Of Module *******************************/
