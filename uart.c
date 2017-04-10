@@ -49,17 +49,7 @@ INT32U lcrh_stopbits(INT8U antal_stopbits){
 	return 0;
 }
 
-INT32U lcrh_parity(INT8U parity)
-/*****************************************************************************
-*   Function : sets bit 1, 2 and 7 to the wanted parity.
-*   		    'e':  00000110b.
-*   		    'o':  00000010b.
-*   		    '0':  10000110b.
-*   		    '1':  10000010b.
-*   		    'n':  00000000b.
-*   		   all other bits are returned = 0
-******************************************************************************/
-{
+INT32U lcrh_parity(INT8U parity){
   INT32U result;
   switch(parity){
     case 'e':
@@ -115,9 +105,7 @@ extern void uart0_init(INT32U baud_rate, INT8U databits, INT8U stopbits, INT8U p
   UART0_LCRH_R += lcrh_stopbits(stopbits);
   UART0_LCRH_R += lcrh_parity(parity);
 
-  uart0_fifos_disable();
+  uart0_fifos_enable();
 
   UART0_CTL_R  |= (UART_CTL_UARTEN | UART_CTL_TXE ); // Enable UART
-
-  uart0_fifos_enable();
 }
