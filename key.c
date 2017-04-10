@@ -1,7 +1,9 @@
 #include <stdint.h>
 #include "tm4c123gh6pm.h"
 #include "emp_type.h"
-#include "tmodel.h"
+#include "rtcs.h"
+
+extern QUEUE Q_KEY;
 
 //states
 #define INIT 0

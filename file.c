@@ -4,7 +4,6 @@
 #include "glob_def.h"
 #include "rtcs.h"
 #include "file.h"
-#include "tmodel.h"
 #include "key.h"
 #include "uart.h"
 #include "lcd.h"

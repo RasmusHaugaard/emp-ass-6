@@ -1,6 +1,8 @@
 #include "emp_type.h"
-#include "tmodel.h"
 #include "lcd.h"
+#include "rtcs.h"
+
+extern INT8U SEM_RTC_UPDATED;
 
 INT8U sec, min, hour;
 

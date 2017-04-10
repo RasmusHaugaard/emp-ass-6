@@ -3,9 +3,11 @@
 #include "emp_type.h"
 #include "lcd.h"
 #include "glob_def.h"
-#include "tmodel.h"
+#include "rtcs.h"
 
 #define QUEUE_LEN 128
+
+extern QUEUE Q_LCD;
 
 enum LCD_states
 {

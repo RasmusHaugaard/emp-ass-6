@@ -1,7 +1,9 @@
 #include <stdint.h>
 #include "tm4c123gh6pm.h"
 #include "emp_type.h"
-#include "tmodel.h"
+#include "rtcs.h"
+
+extern QUEUE Q_UART_TX, Q_UART_RX;
 
 BOOLEAN uart_put_q(INT8U ch){
   return put_queue(Q_UART_TX, ch, WAIT_FOREVER);
@@ -12,15 +14,11 @@ BOOLEAN uart_get_q(INT8U *pch){
 }
 
 BOOLEAN uart0_rx_rdy(){
-  return UART0_FR_R & UART_FR_RXFF;
-}
-
-INT8U uart0_getc(){
-  return UART0_DR_R;
+  return !(UART0_FR_R & UART_FR_RXFE);
 }
 
 BOOLEAN uart0_tx_rdy(){
-  return UART0_FR_R & UART_FR_TXFE;
+  return !(UART0_FR_R & UART_FR_TXFF);
 }
 
 void uart0_putc(INT8U ch){
@@ -28,15 +26,13 @@ void uart0_putc(INT8U ch){
 }
 
 extern void uart_rx_task(INT8U my_id, INT8U my_state, INT8U event, INT8U data){
-  if(uart0_rx_rdy())
-  	put_queue(Q_UART_RX, uart0_getc(), WAIT_FOREVER);
-  else
-	wait(1);
+  while(uart0_rx_rdy())
+  	put_queue(Q_UART_RX, UART0_DR_R, WAIT_FOREVER);
 }
 
 extern void uart_tx_task(INT8U my_id, INT8U my_state, INT8U event, INT8U data){
   INT8U ch;
-  if(get_queue(Q_UART_TX, &ch, WAIT_FOREVER))
+  while (uart0_tx_rdy() && get_queue(Q_UART_TX, &ch, WAIT_FOREVER))
   	UART0_DR_R = ch;
 }
 
@@ -86,11 +82,11 @@ INT32U lcrh_parity(INT8U parity)
 }
 
 void uart0_fifos_enable(){
-  UART0_LCRH_R  |= 0x00000010;
+  UART0_LCRH_R  |= UART_LCRH_FEN;
 }
 
 void uart0_fifos_disable(){
-  UART0_LCRH_R  &= 0xFFFFFFEF;
+  UART0_LCRH_R  &= ~UART_LCRH_FEN;
 }
 
 extern void uart0_init(INT32U baud_rate, INT8U databits, INT8U stopbits, INT8U parity){
@@ -122,4 +118,6 @@ extern void uart0_init(INT32U baud_rate, INT8U databits, INT8U stopbits, INT8U p
   uart0_fifos_disable();
 
   UART0_CTL_R  |= (UART_CTL_UARTEN | UART_CTL_TXE ); // Enable UART
+
+  uart0_fifos_enable();
 }

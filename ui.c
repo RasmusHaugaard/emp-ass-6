@@ -3,7 +3,6 @@
 #include "emp_type.h"
 #include "gpio.h"
 #include "systick.h"
-#include "tmodel.h"
 #include "systick.h"
 #include "ui.h"
 #include "rtc.h"

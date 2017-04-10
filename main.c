@@ -1,22 +1,24 @@
 #include <stdint.h>
 #include "tm4c123gh6pm.h"
+
 #include "emp_type.h"
 #include "glob_def.h"
+
 #include "gpio.h"
 #include "systick.h"
-#include "tmodel.h"
-#include "systick.h"
+#include "rtcs.h"
+#include "string.h"
+#include "file.h"
+
 #include "rtc.h"
 #include "lcd.h"
 #include "uart.h"
 #include "ui.h"
 #include "key.h"
-#include "string.h"
-#include "file.h"
 
-FILE UART;
-FILE KEYBOARD;
-FILE LCD;
+FILE UART, KEYBOARD, LCD;
+SEM SEM_RTC_UPDATED;
+QUEUE Q_UART_TX, Q_UART_RX, Q_LCD, Q_KEY;
 
 void ui_key_task(INT8U my_id, INT8U my_state, INT8U event, INT8U data){
   INT8U ch;
@@ -36,10 +38,13 @@ int main(void){
   KEYBOARD = create_file(get_keyboard, NULL);
 
   init_rtcs();
-  open_queue(Q_UART_TX);
-  open_queue(Q_UART_RX);
-  open_queue(Q_LCD);
-  open_queue(Q_KEY);
+
+  SEM_RTC_UPDATED = create_sem();
+
+  Q_UART_TX = create_queue();
+  Q_UART_RX = create_queue();
+  Q_LCD = create_queue();
+  Q_KEY = create_queue();
 
   create_task(rtc_task, "RTC");
   create_task(display_rtc_task, "RTC DISP");
