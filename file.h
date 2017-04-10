@@ -8,6 +8,7 @@ typedef int FILE;
 #define COM2  1      // LCD
 #define COM3  2      // Keyboard
 
+void init_files();
 BOOLEAN put_file(FILE, INT8U);
 BOOLEAN get_file(FILE, INT8U*);
 
