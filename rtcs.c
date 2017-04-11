@@ -48,12 +48,12 @@ INT16U now_micros(){
     return us;
 }
 
-INT16U millis(INT16U _millis){
-    return ceil(_millis * ((float)SYS_FREQ / 1000.0));
+INT16U millis(FP32 _millis){
+    return ceil(_millis * ((FP32)SYS_FREQ / 1000.0));
 }
 
-INT16U micros(INT16U _micros){
-    return ceil(_micros * ((float)SYS_FREQ / 1000000.0));
+INT16U micros(FP32 _micros){
+    return ceil(_micros * ((FP32)SYS_FREQ / 1000000.0));
 }
 
 TASK current_task;

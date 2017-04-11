@@ -27,8 +27,8 @@ typedef unsigned char QUEUE;
 INT16U now_micros();
 INT16U now_millis();
 
-INT16U millis(INT16U);
-INT16U micros(INT16U);
+INT16U millis(FP32);
+INT16U micros(FP32);
 
 void set_state(INT8U);
 void wait(INT16U);
