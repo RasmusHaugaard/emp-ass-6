@@ -4,6 +4,7 @@
 #include "emp_type.h"
 #include "glob_def.h"
 
+#include "clk.h"
 #include "gpio.h"
 #include "systick.h"
 #include "rtcs.h"
@@ -22,6 +23,8 @@ SEM SEM_RTC_UPDATED;
 QUEUE Q_UART_TX, Q_UART_RX, Q_LCD, Q_KEY;
 
 int main(void){
+  set_80MHz();
+
   init_gpio();
   uart0_init(115200, 8, 1, 'n');
   init_files();
