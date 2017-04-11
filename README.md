@@ -15,7 +15,7 @@ Suggestions are welcome! Send a pull-requst!
 
 ### How to make it run
 - Install Code Composer Studio (CCS).
-- Download this project with git or [as a .zip](https://github.com/RasmusHaugaard/emp-ass-6/archive/master.zip).
+- Download this project with git or [as a .zip](https://github.com/RasmusHaugaard/rtcs/archive/master.zip).
 	- (git instructions):
 		- [Install git](https://git-scm.com/).
 		- Open a terminal and go to the directory where you want the project.
