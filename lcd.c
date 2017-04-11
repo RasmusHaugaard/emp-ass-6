@@ -45,13 +45,13 @@ void wr_str_LCD(INT8U *str){
   }
 }
 
-void move_LCD( INT8U x, INT8U y ){
+void move_LCD(INT8U x, INT8U y){
   INT8U Pos;
 
   Pos = y*0x40 + x;
   Pos |= 0x80;
-  wr_ch_LCD( ESC );
-  wr_ch_LCD( Pos );
+  wr_ch_LCD(ESC);
+  wr_ch_LCD(Pos);
 }
 
 void wr_ctrl_LCD_low(INT8U Ch){
@@ -61,16 +61,16 @@ void wr_ctrl_LCD_low(INT8U Ch){
   temp = GPIO_PORTC_DATA_R & 0x0F;
   temp  = temp | ((Ch & 0x0F) << 4);
   GPIO_PORTC_DATA_R  = temp;
-  for( i=0; i<1000; i )
+  for( i=0; i<5000; i )
 	  i++;
   GPIO_PORTD_DATA_R &= 0xFB; // Select Control mode, write
-  for( i=0; i<1000; i )
+  for( i=0; i<5000; i )
 	  i++;
   GPIO_PORTD_DATA_R |= 0x08; // Set E High
-  for( i=0; i<1000; i )
+  for( i=0; i<5000; i )
 	  i++;
   GPIO_PORTD_DATA_R &= 0xF7;	// Set E Low
-  for( i=0; i<1000; i )
+  for( i=0; i<5000; i )
 	  i++;
 }
 
@@ -86,6 +86,7 @@ void out_LCD_low(INT8U Ch){
   GPIO_PORTD_DATA_R |= 0x04; // Select data mode
   GPIO_PORTD_DATA_R |= 0x08;	// Set E High
   GPIO_PORTD_DATA_R &= 0xF7;	// Set E Low
+  for(INT8U i = 0; i < 100; i++);
 }
 
 void out_LCD_high( INT8U Ch ){
@@ -97,7 +98,7 @@ void wr_ctrl_LCD(INT8U Ch){
   INT16U i;
   wr_ctrl_LCD_high(Ch);
   if(Mode4bit){
-	for(i = 0; i < 1000; i++); //TODO: remove busy wait
+	for(i = 0; i < 5000; i++); //TODO: remove busy wait
 	wr_ctrl_LCD_low(Ch);
   }else{
 	if((Ch & 0x30) == 0x20)
@@ -120,7 +121,7 @@ void Set_cursor(INT8U Ch){
 void out_LCD(INT8U Ch){
   INT16U i;
   out_LCD_high(Ch);
-  for(i=0; i<1000; i++); //TODO: should not busy wait
+  for(i=0; i<5000; i++); //TODO: should not busy wait
   out_LCD_low( Ch );
 }
 
@@ -131,7 +132,7 @@ void lcd_task(INT8U my_id, INT8U my_state, INT8U event, INT8U data){
     case LCD_POWER_UP:
       LCD_init = 0;
       set_state(LCD_INIT);
-      wait(100);
+      wait(millis(100));
       break;
     case LCD_INIT:
       if(LCD_init_sequense[LCD_init] != 0xFF){
@@ -139,7 +140,7 @@ void lcd_task(INT8U my_id, INT8U my_state, INT8U event, INT8U data){
       }else{
 		set_state(LCD_READY);
 	  }
-	  wait(100);
+	  wait(millis(40));
       break;
     case LCD_READY:
       if(get_queue(Q_LCD, &ch, WAIT_FOREVER)){
@@ -167,7 +168,7 @@ void lcd_task(INT8U my_id, INT8U my_state, INT8U event, INT8U data){
 		  }
         }
 	    set_state(LCD_READY);
-	    wait(10);
+	    wait(millis(50));
       }
 	  break;
   }
