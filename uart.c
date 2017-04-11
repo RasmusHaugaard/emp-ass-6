@@ -105,6 +105,8 @@ extern void uart0_init(INT32U baud_rate, INT8U databits, INT8U stopbits, INT8U p
   UART0_LCRH_R += lcrh_stopbits(stopbits);
   UART0_LCRH_R += lcrh_parity(parity);
 
+  UART0_CC_R = UART_CC_CS_PIOSC;
+
   uart0_fifos_enable();
 
   UART0_CTL_R  |= (UART_CTL_UARTEN | UART_CTL_TXE ); // Enable UART
