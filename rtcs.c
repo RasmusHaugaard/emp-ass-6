@@ -8,11 +8,9 @@
 #include "systick.h"
 #include "string.h"
 
-#define TASK_NAME_LENGTH 10
-
 typedef struct {
   INT8U condition;
-  char name[TASK_NAME_LENGTH];
+  INT8U name[MAX_TASK_NAME_LENGTH];
   INT8U state;
   INT8U event;
   SEM sem;
@@ -61,6 +59,26 @@ TASK current_task;
 tcb pot[MAX_TASKS]; // Pool of tasks
 scb pos[MAX_SEMAPHORES]; // Pool of semaphores
 qcb poq[MAX_QUEUES]; // Pool of queues
+
+INT8U get_condition(TASK id){
+    return pot[id].condition;
+}
+
+const INT8U* get_name(TASK id){
+    return pot[id].name;
+}
+
+INT8U get_state(TASK id){
+    return pot[id].state;
+}
+
+SEM get_sem(TASK id){
+    return pot[id].sem;
+}
+
+INT16U get_timer(TASK id){
+    return pot[id].timer;
+}
 
 void i_am_alive(INT8U my_id, INT8U my_state, INT8U event, INT8U data){
   if(my_state == 0){
@@ -151,13 +169,13 @@ BOOLEAN get_queue(QUEUE id, INT8U* pch, INT16U timeout){
   return result;
 }
 
-TASK create_task(void (*tf)(INT8U, INT8U, INT8U, INT8U), char* name){
+TASK create_task(void (*tf)(INT8U, INT8U, INT8U, INT8U), INT8U* name){
   static TASK next_id = 0;
   TASK id = next_id++;
 
   if(id != ERROR_TASK){
 	pot[id].condition = TASK_READY;
-	strncpy(pot[id].name, name, TASK_NAME_LENGTH);
+	strncpy(pot[id].name, name, MAX_TASK_NAME_LENGTH);
 	pot[id].state = 0;
 	pot[id].timer = 0;
 	pot[id].tf = tf;

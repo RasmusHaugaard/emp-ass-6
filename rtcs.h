@@ -6,6 +6,7 @@ typedef unsigned char SEM;
 typedef unsigned char QUEUE;
 
 #define MAX_TASKS 16
+#define MAX_TASK_NAME_LENGTH 10
 #define MAX_QUEUES 16
 #define MAX_SEMAPHORES 64 // The first 2xMAX_QUEUES are reserved for the queues.
 
@@ -31,6 +32,12 @@ INT16U millis(INT16U);
 INT16U micros(INT16U);
 
 void set_state(INT8U);
+
+INT8U get_condition(TASK);
+INT8U get_state(TASK);
+SEM get_sem(TASK);
+INT16U get_timer(TASK);
+
 void wait(INT16U);
 BOOLEAN wait_sem(INT8U, INT16U);
 void signal(INT8U);
@@ -39,7 +46,7 @@ QUEUE create_queue();
 BOOLEAN put_queue(QUEUE, INT8U, INT16U);
 BOOLEAN get_queue(QUEUE, INT8U*, INT16U);
 
-TASK create_task(void (*tf)(INT8U, INT8U, INT8U, INT8U), char* name);
+TASK create_task(void (*tf)(INT8U, INT8U, INT8U, INT8U), INT8U* name);
 SEM create_sem();
 
 void init_rtcs();

@@ -1,5 +1,4 @@
 #include "ui_uart.h"
-
 #include <stdint.h>
 #include "tm4c123gh6pm.h"
 #include "emp_type.h"
@@ -9,30 +8,49 @@
 #include "rtc.h"
 #include "file.h"
 #include "string.h"
+#include "rtcs.h"
+
+typedef struct {
+    INT8U condition;
+    INT8U state;
+    SEM sem;
+    INT16U timer;
+} TASK_STATUS;
+
+TASK_STATUS task_status[MAX_TASKS];
 
 INT8U i;
 INT8U InBuf[128];
 
+enum DEBUG_STATES{
+    WAITING_FOR_INSTRUCTION,
+    TRANSMITTING_PROCESS_STATUS,
+};
+enum DEBUG_STATES debug_state = WAITING_FOR_INSTRUCTION;
+
 extern FILE F_UART;
 
 void ui_uart_task(INT8U my_id, INT8U my_state, INT8U event, INT8U data){
-  INT8U ch;
-  if(file_read(F_UART, &ch)){
-    if(i < 128)
-      InBuf[i++] = ch;
-    gfprintf(F_UART, "%c", ch);
-    if(ch == '\r'){
-      if(InBuf[0] == '2'){
-        gfprintf(F_UART, "2%02d%02d%02d", get_hour(), get_min(), get_sec());
-      }
-      if((InBuf[0] == '1') && (i >= 7)){
-          set_hour((InBuf[1]-'0')*10+InBuf[2]-'0');
-          set_min((InBuf[3]-'0')*10+InBuf[4]-'0');
-          set_sec((InBuf[5]-'0')*10+InBuf[6]-'0');
-          gfprintf(F_UART, "%02d%02d%02d", get_hour(), get_min(), get_sec());
-      }
-      gfprintf(F_UART, "\r\n>>");
-      i = 0;
+    switch(debug_state){
+        case WAITING_FOR_INSTRUCTION: {
+            INT8U ch;
+            if(file_read(F_UART, &ch)){
+                if(i < 128)
+                    InBuf[i++] = ch;
+                gfprintf(F_UART, (INT8U*)"%c", 0, ch);
+                if(ch == '\r'){
+                    if(InBuf[0] == 'p' && InBuf[1] == 's'){
+                        //TODO: save process status in mem to sync
+                        set_state(TRANSMITTING_PROCESS_STATUS);
+                    }
+                }
+            }
+            break;
+        }
+        case TRANSMITTING_PROCESS_STATUS: {
+            //TODO: write as much of the state as there can be in the file
+            set_state(WAITING_FOR_INSTRUCTION);
+            break;
+        }
     }
-  }
 }
