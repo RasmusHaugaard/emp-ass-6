@@ -13,6 +13,7 @@
 INT8U* strcpy(INT8U* dest, const INT8U* src){
     while (*src != 0)
         *dest++ = *src++;
+    *dest = *src;
     return dest;
 }
 
@@ -22,10 +23,16 @@ INT8U* strncpy(INT8U* dest, const INT8U* src, INT8U len){
     return dest;
 }
 
+INT8S strcmp(const INT8U* a, const INT8U* b){
+    while (*a && *a == *b){
+        a++;
+        b++;
+    }
+    return *a - *b;
+}
+
 BOOLEAN wr_c(FILE fp, INT8U ch, INT8U start_i, INT8U* global_i){
-    if (start_i > *global_i)
-        return TRUE;
-    if (file_write(fp, ch)){
+    if (start_i > *global_i || file_write(fp, ch)){
         ++*global_i;
         return TRUE;
     }
@@ -53,7 +60,7 @@ BOOLEAN putDec(FILE fp, long val, int sign, int size, char filler, INT8U start_i
     }
   }
   if(size == 0){
-    while( weight < val ){
+    while(weight <= val){
       weight *= 10;
       size++;
     }
@@ -69,7 +76,7 @@ BOOLEAN putDec(FILE fp, long val, int sign, int size, char filler, INT8U start_i
 
   while(size > 0){
     digit = val / weight;
-    if(digit == 0){
+    if(digit == 0 && size != 1){
       if(!wr_c(fp, filler, start_i, global_i))
         return FALSE;
     }else{

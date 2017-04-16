@@ -11,6 +11,7 @@ typedef struct{
 GPRINTF_RESULT gfprintf(FILE, const INT8U*, INT8U, ...);
 INT8U* strcpy(INT8U* dest, const INT8U *src);
 INT8U* strncpy(INT8U* dest, const INT8U *src, INT8U len);
+INT8S strcmp(const INT8U* a, const INT8U* b);
 
 #endif
 
