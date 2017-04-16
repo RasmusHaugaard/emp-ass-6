@@ -33,10 +33,11 @@ INT16U micros(INT16U);
 
 void set_state(INT8U);
 
-INT8U get_condition(TASK);
-INT8U get_state(TASK);
-SEM get_sem(TASK);
-INT16U get_timer(TASK);
+INT8U get_task_condition(TASK id);
+INT8U get_task_state(TASK id);
+SEM get_task_sem(TASK id);
+INT16U get_task_timer(TASK id);
+const INT8U* get_task_name(TASK id);
 
 void wait(INT16U);
 BOOLEAN wait_sem(INT8U, INT16U);

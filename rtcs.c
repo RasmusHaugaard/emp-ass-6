@@ -60,23 +60,23 @@ tcb pot[MAX_TASKS]; // Pool of tasks
 scb pos[MAX_SEMAPHORES]; // Pool of semaphores
 qcb poq[MAX_QUEUES]; // Pool of queues
 
-INT8U get_condition(TASK id){
+INT8U get_task_condition(TASK id){
     return pot[id].condition;
 }
 
-const INT8U* get_name(TASK id){
+const INT8U* get_task_name(TASK id){
     return pot[id].name;
 }
 
-INT8U get_state(TASK id){
+INT8U get_task_state(TASK id){
     return pot[id].state;
 }
 
-SEM get_sem(TASK id){
+SEM get_task_sem(TASK id){
     return pot[id].sem;
 }
 
-INT16U get_timer(TASK id){
+INT16U get_task_timer(TASK id){
     return pot[id].timer;
 }
 
@@ -190,9 +190,11 @@ SEM create_sem(){
 }
 
 void init_rtcs(){
-  for(INT8U i = 0; i < MAX_TASKS; i++)
+  for(INT8U i = 0; i < MAX_TASKS; i++){
 	pot[i].condition = NO_TASK;
-  create_task(i_am_alive, "IM ALIVE");
+	strcpy(pot[i].name, (INT8U*)"");
+  }
+  create_task(i_am_alive, (INT8U*)"IM ALIVE");
 }
 
 void schedule(){
