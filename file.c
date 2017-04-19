@@ -27,14 +27,19 @@ BOOLEAN file_read(FILE file, INT8U *pch){
   return FALSE;
 }
 
-void init_files(){
+BOOLEAN files_initialized = FALSE;
+
+void initialize_files(){
   for(INT8U i = 0; i < MAX_FILES; i++){
 	  pof[i].put = NULL;
 	  pof[i].get = NULL;
   }
+  files_initialized = TRUE;
 }
 
 FILE create_file(BOOLEAN (*get)(INT8U*), BOOLEAN (*put)(INT8U)){
+    if (!files_initialized)
+        initialize_files();
     FILE id = next_file_id++;
     pof[id].get = get;
     pof[id].put = put;

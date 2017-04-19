@@ -27,7 +27,6 @@ int main(void){
 
   init_gpio();
   uart0_init(115200, 8, 1, 'n');
-  init_files();
 
   F_UART = create_file(uart_get_q, uart_put_q);
   F_LCD = create_file(NULL, wr_ch_LCD);
