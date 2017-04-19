@@ -66,7 +66,7 @@ void ui_uart_task(INT8U my_id, INT8U my_state, INT8U event, INT8U data)
         static INT8U cur_task = 0;
         static INT8U char_index = 0;
 
-        INT8U* name = get_task_name(cur_task);
+        const INT8U* name = get_task_name(cur_task);
         INT8U cond = task_status[cur_task].condition;
         INT8U state = task_status[cur_task].state;
         INT16U time = task_status[cur_task].timer;
@@ -74,7 +74,7 @@ void ui_uart_task(INT8U my_id, INT8U my_state, INT8U event, INT8U data)
 
         GPRINTF_RESULT r;
 
-        if (cond == 0){
+        if (cond == NO_TASK){
             r = gfprintf(F_UART, (INT8U*)"Task: %02u %-10s, Condition: Dead\n", char_index, cur_task, name);
         }else if(cond == TASK_READY){
             r = gfprintf(F_UART, (INT8U*)"Task: %02u %-10s, Condition: Ready  , State: %03u\n", char_index, cur_task, name, state);
