@@ -1,6 +1,7 @@
 #include "emp_type.h"
 #include "lcd.h"
 #include "rtcs.h"
+#include "interval.h"
 
 extern INT8U SEM_RTC_UPDATED;
 
@@ -31,15 +32,14 @@ void set_sec(INT8U new_sec){
 }
 
 void rtc_task(INT8U my_id, INT8U my_state, INT8U event, INT8U data){
-  static INT16U last_millis;
+  static INT8U interval;
   switch(my_state){
     case 0:
-      last_millis = now_millis();
+      interval = create_interval(millis(1000));
       set_state(1);
       break;
     case 1:
-      if ((INT16U)(now_millis() - last_millis) >= 1000){
-          last_millis = now_millis();
+      if (check_interval(interval)){
           if(++sec >= 60){
             if(++min >= 60){
               if(++hour >= 24)
