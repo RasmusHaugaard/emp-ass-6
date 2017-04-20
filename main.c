@@ -16,10 +16,13 @@
 #include "uart.h"
 #include "key.h"
 #include "ui_key.h"
-#include "ui_uart.h"
+
+#include "cmd_handler.h"
+#include "ps.h"
+
 
 FILE F_UART, F_KEYBOARD, F_LCD;
-SEM SEM_RTC_UPDATED;
+SEM SEM_RTC_UPDATED, SEM_UART_TX, SEM_CMD_PS_TRIGGER;
 QUEUE Q_UART_TX, Q_UART_RX, Q_LCD, Q_KEY;
 
 int main(void){
@@ -34,16 +37,19 @@ int main(void){
 
   init_rtcs();
 
-  SEM_RTC_UPDATED = create_sem();
+  SEM_RTC_UPDATED = create_sem(0);
+  SEM_UART_TX = create_sem(1);
+  SEM_CMD_PS_TRIGGER = create_sem(0);
 
   Q_UART_TX = create_queue();
   Q_UART_RX = create_queue();
   Q_LCD = create_queue();
   Q_KEY = create_queue();
 
+  create_cmd_handler("ps", SEM_CMD_PS_TRIGGER);
+
   create_task(uart_rx_task, "UART RX");
   create_task(uart_tx_task, "UART TX");
-  create_task(ui_uart_task, "UART UI");
 
   create_task(rtc_task, "RTC");
   create_task(display_rtc_task, "RTC DISP");
@@ -52,6 +58,9 @@ int main(void){
   create_task(ui_key_task, "KEY UI");
 
   create_task(lcd_task, "LCD");
+
+  create_task(cmd_handler_task, "CMD HANDL");
+  create_task(cmd_ps_task, "CMD_PS");
 
   schedule();
 }

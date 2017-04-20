@@ -113,10 +113,11 @@ void wait(INT16U timeout)
     pot[current_task].condition = TASK_WAIT_FOR_TIMEOUT;
 }
 
-SEM create_sem()
+SEM create_sem(INT8U init_val)
 {
     static SEM next_id = 2 * MAX_QUEUES;
     SEM id = next_id++;
+    preset_sem(id, init_val);
     return id;
 }
 

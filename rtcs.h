@@ -45,7 +45,7 @@ BOOLEAN put_queue(QUEUE, INT8U, INT16U);
 BOOLEAN get_queue(QUEUE, INT8U*, INT16U);
 
 TASK create_task(void (*tf)(INT8U, INT8U, INT8U, INT8U), char* name);
-SEM create_sem();
+SEM create_sem(INT8U init_val);
 
 INT8U get_task_condition(TASK id);
 const INT8U* get_task_name(TASK id);
