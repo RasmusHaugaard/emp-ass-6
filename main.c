@@ -42,16 +42,16 @@ int main(void){
   Q_KEY = create_queue();
 
   create_task(uart_rx_task, "UART RX");
+  create_task(uart_tx_task, "UART TX");
+  create_task(ui_uart_task, "UART UI");
 
   create_task(rtc_task, "RTC");
   create_task(display_rtc_task, "RTC DISP");
 
   create_task(key_task, "KEY");
   create_task(ui_key_task, "KEY UI");
-  create_task(ui_uart_task, "UI");
 
   create_task(lcd_task, "LCD");
-  create_task(uart_tx_task, "UART TX");
 
   schedule();
 }

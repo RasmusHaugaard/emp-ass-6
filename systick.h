@@ -8,5 +8,7 @@
 extern volatile INT16U ticks;
 
 void init_systick();
+void disable_global_int();
+void enable_global_int();
 
 #endif
