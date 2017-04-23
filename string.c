@@ -3,48 +3,64 @@
 #include "glob_def.h"
 #include "rtcs.h"
 #include "file.h"
+#include "string.h"
 
 #define NEGATIVE 0
 #define POSITIVE 1
 #define LEFT    0
 #define RIGHT   1
 
-char* strcpy(char* dest, const char *src){
+INT8U* strcpy(INT8U* dest, const INT8U* src){
     while (*src != 0)
         *dest++ = *src++;
+    *dest = *src;
     return dest;
 }
 
-char* strncpy(char* dest, const char *src, INT8U len){
+INT8U* strncpy(INT8U* dest, const INT8U* src, INT8U len){
     while (--len > 0)
         *dest++ = *src++;
     return dest;
 }
 
-void putStr(FILE fp, const char* str){
+INT8S strcmp(const INT8U* a, const INT8U* b){
+    while (*a && *a == *b){
+        a++;
+        b++;
+    }
+    return *a - *b;
+}
+
+BOOLEAN wr_c(FILE fp, INT8U ch, INT8U start_i, INT8U* global_i){
+    if (start_i > *global_i || file_write(fp, ch)){
+        ++*global_i;
+        return TRUE;
+    }
+    return FALSE;
+}
+
+BOOLEAN putStr(FILE fp, const INT8U* str, INT8U start_i, INT8U* global_i){
   while(*str)
-    file_write(fp, *str++);
+    if(!wr_c(fp, *str++, start_i, global_i))
+        return FALSE;
+  return TRUE;
 }
 
-void putChars(FILE fp, const char* str, int len){
-  while(len--)
-    file_write(fp, *str++);
-}
-
-void putDec(FILE fp, long val, int sign, int size, char filler){
-  long weight = 1;
-  long digit;
-  int  i;
+BOOLEAN putDec(FILE fp, long val, int sign, int size, char filler, INT8U start_i, INT8U* global_i){
+  INT32S weight = 1;
+  INT32S digit;
+  INT16S i;
 
   if(sign == NEGATIVE){
     size--;
     if(filler == '0'){
-      file_write( fp, '-' );
+      if(!wr_c(fp, '-', start_i, global_i))
+        return FALSE;
       sign = POSITIVE;
     }
   }
   if(size == 0){
-    while( weight < val ){
+    while(weight <= val){
       weight *= 10;
       size++;
     }
@@ -60,29 +76,33 @@ void putDec(FILE fp, long val, int sign, int size, char filler){
 
   while(size > 0){
     digit = val / weight;
-    if(digit == 0)
-      file_write(fp, filler);
-    else{
+    if(digit == 0 && size != 1){
+      if(!wr_c(fp, filler, start_i, global_i))
+        return FALSE;
+    }else{
       if(sign == NEGATIVE){
-        file_write(fp, '-');
+        if(!wr_c(fp, '-', start_i, global_i))
+          return FALSE;
         sign = POSITIVE;
       }
-      file_write(fp, digit + '0');
+      if(!wr_c(fp, digit + '0', start_i, global_i))
+        return FALSE;
       filler = '0';
     }
     val %= weight;
     weight /= 10;
     size--;
   }
+  return TRUE;
 }
 
-void putHex(FILE fp, long val, int size){
-  unsigned long weight = 1;
-  long digit;
-  int  i;
+BOOLEAN putHex(FILE fp, INT32U val, INT8U size, INT8U start_i, INT8U* global_i){
+  INT32U weight = 1;
+  INT32S digit;
+  INT16S i;
 
   if(size == 0)
-    size = sizeof(long) * 2;
+    size = sizeof(INT32S) * 2;
 
   i = size - 1;
   while(i-- > 0)
@@ -91,48 +111,55 @@ void putHex(FILE fp, long val, int size){
   while(size > 0){
     digit = val / weight;
     if(digit < 10)
-      file_write(fp, digit + '0');
+      digit += '0';
     else
-      file_write(fp, digit + '7');
+      digit += '7';
+
+    if (!wr_c(fp, digit, start_i, global_i))
+        return FALSE;
+
     val %= weight;
     weight /= 16;
     size--;
   }
+  return TRUE;
 }
 
-void gfprintf(FILE fp, const char* str, ...){
-  unsigned long val;
-  int i, done, size, len, sign, adjust;
-  char *subStr, preChar;
+GPRINTF_RESULT gfprintf(FILE fp, const INT8U* str, INT8U start_i, ...){
+  INT32U val;
+  INT8U global_i = 0;
+  INT8U i, size, len;
+  BOOLEAN done, sign, adjust;
+  INT8U *subStr, preChar;
+  BOOLEAN wr_err = FALSE;
+
   va_list vaArgP;
+  va_start(vaArgP, start_i);
 
-  va_start(vaArgP, str);
-
-  while(*str){
-    // Find the first non-% character, or the end of the string.
+  while(*str && !wr_err){
     i = 0;
-    while(str[i] != '%' && str[i] != '\0')
-      i++;
-
-    putChars(fp, str, i);
-
+    while(str[i] != '%' && str[i] != '\0' && !wr_err){
+        wr_err = !wr_c(fp, str[i], start_i, &global_i);
+        i++;
+    }
     // Skip the portion of the string that was written.
     str += i;
 
-    // See if the next character is a %.
     if(*str == '%'){
       size = 0;
       done = FALSE;
       preChar = ' ';
+      adjust = RIGHT;
       i = 0;
 
-      while(!done){
+      while(!done && !wr_err){
         str++;
         switch(*str){
           case '%':
-            file_write(fp, '%');
+            wr_err = !wr_c(fp, '%', start_i, &global_i);
             done = TRUE;
             break;
+
           case '0': case '1': case '2': case '3': case '4':
           case '5': case '6': case '7': case '8': case '9':
             if(*str == '0' && i == 0)
@@ -141,55 +168,63 @@ void gfprintf(FILE fp, const char* str, ...){
             size += *str - '0';
             i++;
             break;
+
           case '-':
             if(i == 0)
               adjust = LEFT;
             i++;
             break;
+
           case 'c':
-            val = va_arg(vaArgP, unsigned long);
-            file_write(fp, (char)val);
+            val = va_arg(vaArgP, INT32U);
+            wr_err = !wr_c(fp, (INT8U)val, start_i, &global_i);
             done = TRUE;
             break;
+
           case 'd':
-            val  = va_arg(vaArgP, unsigned long);
-            if((long)val < 0){
-              val = -(long)val;
+            val = va_arg(vaArgP, INT32U);
+            if((INT32S)val < 0){
+              val = -(INT32S)val;
               sign = NEGATIVE;
             }else{
               sign = POSITIVE;
             }
-            putDec(fp, (long)val, sign, size, preChar);
+            wr_err = !putDec(fp, (INT32S)val, sign, size, preChar, start_i, &global_i);
             done = TRUE;
             break;
+
           case 'u':
-            val = va_arg(vaArgP, unsigned long);
-            putDec(fp, val, POSITIVE, size, preChar);
+            val = va_arg(vaArgP, INT32U);
+            wr_err = !putDec(fp, val, POSITIVE, size, preChar, start_i, &global_i);
             done = TRUE;
             break;
-          case 'x':
-          case 'X':
-          case 'p':
-            val = va_arg(vaArgP, unsigned long);
-            putHex( fp, val, size );
+
+          case 'x': case 'X': case 'p':
+            val = va_arg(vaArgP, INT32U);
+            wr_err = !putHex(fp, val, size, start_i, &global_i);
             done = TRUE;
             break;
+
           case 's':
-            subStr = va_arg(vaArgP, char *);
+            subStr = va_arg(vaArgP, INT8U*);
             len = 0;
             while(subStr[len])
               len++;
             if(adjust == RIGHT)
-              while(size-- > len)
-                file_write(fp, ' ');
-            putStr(fp, subStr);
-            if(adjust == RIGHT)
-              while(size-- > len)
-                file_write( fp, ' ' );
+              while(size-- > len && !wr_err)
+                  wr_err = !wr_c(fp, ' ', start_i, &global_i);
+            if (wr_err)
+                break;
+            if (!putStr(fp, subStr, start_i, &global_i))
+                break;
+            if(adjust == LEFT)
+              while(size-- > len && !wr_err)
+                wr_err = !wr_c(fp, ' ', start_i, &global_i);
             done = TRUE;
             break;
+
           default:
-            putStr(fp, "???");
+            wr_err = !putStr(fp, (INT8U*)"???", start_i, &global_i);
             done = TRUE;
         }
       }
@@ -198,4 +233,6 @@ void gfprintf(FILE fp, const char* str, ...){
   }
   // End the varargs processing.
   va_end(vaArgP);
+  GPRINTF_RESULT r = {!wr_err, global_i};
+  return r;
 }
