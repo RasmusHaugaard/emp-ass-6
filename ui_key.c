@@ -14,7 +14,8 @@ void ui_key_task(INT8U my_id, INT8U my_state, INT8U event, INT8U data){
       case 0:
           if(file_read(F_KEYBOARD, &ch))
           {
-              gfprintf(F_LCD, (INT8U*)"%c%cDu tastede: %c", 0, ESC, 0xc0, ch);
+              wr_str_LCD("Du tastede: ", 16);
+              wr_ch_LCD(ch, 28);
               set_state(1);
               wait_sem(SEM_UART_TX, WAIT_FOREVER);
           }

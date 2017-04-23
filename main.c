@@ -21,9 +21,9 @@
 #include "ps.h"
 
 
-FILE F_UART, F_KEYBOARD, F_LCD;
+FILE F_UART, F_KEYBOARD;
 SEM SEM_RTC_UPDATED, SEM_UART_TX, SEM_CMD_PS_TRIGGER;
-QUEUE Q_UART_TX, Q_UART_RX, Q_LCD, Q_KEY;
+QUEUE Q_UART_TX, Q_UART_RX, Q_KEY;
 
 int main(void){
   set_80MHz();
@@ -32,7 +32,6 @@ int main(void){
   uart0_init(115200, 8, 1, 'n');
 
   F_UART = create_file(uart_get_q, uart_put_q);
-  F_LCD = create_file(NULL, wr_ch_LCD);
   F_KEYBOARD = create_file(get_keyboard, NULL);
 
   init_rtcs();
@@ -43,7 +42,6 @@ int main(void){
 
   Q_UART_TX = create_queue();
   Q_UART_RX = create_queue();
-  Q_LCD = create_queue();
   Q_KEY = create_queue();
 
   create_cmd_handler("ps", SEM_CMD_PS_TRIGGER);
@@ -60,7 +58,7 @@ int main(void){
   create_task(lcd_task, "LCD");
 
   create_task(cmd_handler_task, "CMD HANDL");
-  create_task(cmd_ps_task, "CMD_PS");
+  create_task(cmd_ps_task, "CMD PS");
 
   schedule();
 }

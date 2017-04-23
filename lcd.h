@@ -7,9 +7,8 @@
 
 #define ESC 0x1B
 
-void wr_str_LCD(INT8U*);
-void move_LCD(INT8U, INT8U);
-BOOLEAN wr_ch_LCD(INT8U Ch);
+void wr_ch_LCD(INT8U ch, INT8U index);
+void wr_str_LCD(const INT8U* str, INT8U index);
 
 void lcd_task(INT8U, INT8U, INT8U, INT8U);
 
