@@ -5,7 +5,7 @@ This project is based on work done by the professors, Morten Hansen and Karsten 
 Their original work can be found as the initial commit.
 
 ### Purpose
-The purpose is to improve the provided rtcs and its drivers. See list of changes below.  
+The purpose is to improve the original rtcs and its drivers. See list of changes below.  
 Suggestions are welcome! Send a pull-requst!
 
 ### How to make it run
